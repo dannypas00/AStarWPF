@@ -11,21 +11,21 @@ namespace A_Star_pathfinding
 {
     public class Node
     {
-        private static int distanceDiagonal = 14;
-        private static int distanceStraight = 10;
-        private readonly int row;
-        private readonly int col;
-        private readonly Button button;
-        private int GCost; //Distance from starting node
-        private int HCost; //Distance from End node
-        private int FCost; //GCost + HCost
-        private bool closed = false;
+        public int GCost; //Distance from starting node
+        public int HCost; //Distance from End node
+        public Node parent;
+        public readonly Button button;
+        private const int DistanceDiagonal = 14;
+        private const int DistanceStraight = 10;
+        public int Row;
+        public int Col;
+        private int FCost;
         private bool traversible = true;
 
         public Node(int row, int col, Button button)
         {
-            this.row = row;
-            this.col = col;
+            this.Row = row;
+            this.Col = col;
             this.button = button;
             button.PreviewMouseDown += Button_MouseDown;    //Has to be preview, because the Click event eats up the left mouse click
             button.Background = default;
@@ -43,11 +43,7 @@ namespace A_Star_pathfinding
 
         private void Button_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
-            if (!closed && e.ChangedButton == MouseButton.Left)
-            {
-                button.Background = Brushes.Red;
-                closed = true;
-            } else if (e.ChangedButton == MouseButton.Right)
+            if (e.ChangedButton == MouseButton.Left)
             {
                 if (traversible)
                 {
@@ -67,24 +63,48 @@ namespace A_Star_pathfinding
                 //button.Background = Brushes.DarkBlue;
                 return 0;
             }
-            int rowDir = node.GetRow() - row;
-            int colDir = node.GetCol() - col;
-            return MainWindow.buttonGrid[row + Math.Sign(rowDir), col + Math.Sign(colDir)].DistanceToNode(node) + ((rowDir != 0 && rowDir != 0) ? distanceDiagonal : distanceStraight);
+            int rowDir = node.Row - Row;
+            int colDir = node.Col - Col;
+            int realDistance;
+            if (node.Row == Row || node.Col == Col)
+            {
+                realDistance = DistanceStraight;
+            }
+            else
+            {
+                realDistance = DistanceDiagonal;
+            }
+            return MainWindow.buttonGrid[Row + Math.Sign(rowDir), Col + Math.Sign(colDir)].DistanceToNode(node) + realDistance;
         }
 
-        public int GetCol()
+        public Stack<Node> GetNeighbours()
         {
-            return col;
-        }
-
-        public int GetRow()
-        {
-            return row;
+            Stack<Node> result = new Stack<Node>();
+            for (int i = -1; i < 2; i++)
+            {
+                for (int j = -1; j < 2; j++)
+                {
+                    if (
+                        (Row + i > 0) 
+                        && (Col + j > 0) 
+                        && (Row + i < MainWindow.gridWidth) 
+                        && (Col + j < MainWindow.gridHeight) 
+                        && (i != 0 || j != 0)
+                        ) result.Push(MainWindow.buttonGrid[(Row + i), (Col + j)]);
+                }
+            }
+            return result;
         }
 
         public bool IsTraversible()
         {
             return traversible;
+        }
+
+        public int GetFCost()
+        {
+            this.FCost = this.HCost + this.GCost;
+            return this.FCost;
         }
     }
 }

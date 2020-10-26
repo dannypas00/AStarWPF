@@ -24,19 +24,35 @@ namespace A_Star_pathfinding
         public static int gridWidth = 10, gridHeight = 15;
         public static Node[,] buttonGrid = new Node[gridWidth, gridHeight];
         public static Node start, end;
+        public List<Node> path;
 
         public MainWindow()
         {
             InitializeComponent();
+            Init();
+            SetupGrid();
+        }
+
+        public void Init()
+        {
             VisualGrid.Height = mainWindow.Height / gridHeight * gridWidth;
-            VisualGrid.Width = mainWindow.Height / gridHeight * gridHeight;
+            VisualGrid.Width = mainWindow.Height;
             for (int i = 0; i < gridWidth; i++)
             {
                 VisualGrid.RowDefinitions.Add(new RowDefinition() { Name = "Row" + i });
             }
+
             for (int j = 0; j < gridHeight; j++)
             {
-                VisualGrid.ColumnDefinitions.Add(new ColumnDefinition() { Name = "Col" + j });
+                VisualGrid.ColumnDefinitions.Add(new ColumnDefinition() {Name = "Col" + j});
+            }
+            VisualGrid.RowDefinitions.Add(new RowDefinition() { Name = "ButtonRow" });
+        }
+
+        public void SetupGrid()
+        {
+            for (int j = 0; j < gridHeight; j++)
+            {
                 for (int i = 0; i < gridWidth; i++)
                 {
                     Button button = new Button();
@@ -44,18 +60,50 @@ namespace A_Star_pathfinding
                     Grid.SetColumn(button, j);
                     Grid.SetRow(button, i);
                     buttonGrid[i, j] = new Node(i, j, button);
-                    if (i == 5 && j == 8)
-                    {
-                        int targetRow = 0;
-                        int targetCol = 0;
-                        Trace.WriteLine("Distance from " + i + ", " + j + " to " + targetRow + ", " + targetCol + " is " + buttonGrid[i, j].DistanceToNode(buttonGrid[targetRow, targetCol]) + ".");
-                    }
                 }
             }
             start = buttonGrid[8, 12];
             end = buttonGrid[1, 1];
             start.MakeStartPoint();
             end.MakeEndPoint();
+
+            Button startButton = new Button() { Content = "Find path" };
+            startButton.Click += StartButton_Click;
+            Grid.SetRow(startButton, gridHeight + 1);
+            Grid.SetColumn(startButton, 0);
+            VisualGrid.Children.Add(startButton);
+
+            Button resetButton = new Button() { Content = "Reset" };
+            resetButton.Click += ResetButton_Click;
+            Grid.SetRow(resetButton, gridHeight + 1);
+            Grid.SetColumn(resetButton, 1);
+            VisualGrid.Children.Add(resetButton);
+        }
+
+        private void ResetButton_Click(object sender, RoutedEventArgs e)
+        {
+            //VisualGrid.Children.Clear();
+            //SetupGrid();
+            foreach (Node n in buttonGrid)
+            {
+                if (n.IsTraversible())
+                {
+                    Button button = new Button();
+                    VisualGrid.Children.Add(button);
+                    Grid.SetColumn(button, n.Col);
+                    Grid.SetRow(button, n.Row);
+                    buttonGrid[n.Row, n.Col] = new Node(n.Row, n.Col, button);
+                }
+            }
+        }
+
+        private void StartButton_Click(object sender, RoutedEventArgs e)
+        {
+            path = Pathfinding.FindPath(start, end);
+            foreach (Node n in path)
+            {
+                n.button.Background = Brushes.BlueViolet;
+            }
         }
     }
 }
