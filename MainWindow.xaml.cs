@@ -21,7 +21,7 @@ namespace A_Star_pathfinding
     /// </summary>
     public partial class MainWindow : Window
     {
-        public static int gridWidth = 10, gridHeight = 15;
+        public static int gridWidth = 20, gridHeight = 30;
         public static Node[,] buttonGrid = new Node[gridWidth, gridHeight];
         public static Node start, end;
         public List<Node> path;
@@ -60,6 +60,10 @@ namespace A_Star_pathfinding
                     Grid.SetColumn(button, j);
                     Grid.SetRow(button, i);
                     buttonGrid[i, j] = new Node(i, j, button);
+                    if (i == gridWidth-1 || i == 0 || j == gridHeight-1 || j == 0)
+                    {
+                        buttonGrid[i, j].SetTraversible(false);
+                    }
                 }
             }
             start = buttonGrid[8, 12];

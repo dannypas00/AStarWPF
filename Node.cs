@@ -38,21 +38,14 @@ namespace A_Star_pathfinding
 
         public void MakeEndPoint()
         {
-            button.Background = Brushes.Cyan;
+            button.Background = Brushes.GreenYellow;
         }
 
         private void Button_MouseDown(object sender, System.Windows.Input.MouseButtonEventArgs e)
         {
             if (e.ChangedButton == MouseButton.Left)
             {
-                if (traversible)
-                {
-                    button.Background = Brushes.Black;
-                } else
-                {
-                    button.Background = default;
-                }
-                traversible = !traversible;
+                SetTraversible(!traversible);
             }
         }
 
@@ -99,6 +92,12 @@ namespace A_Star_pathfinding
         public bool IsTraversible()
         {
             return traversible;
+        }
+
+        public void SetTraversible(bool traversible)
+        {
+            button.Background = traversible == false ? Brushes.Black : default(Brush);
+            this.traversible = traversible;
         }
 
         public int GetFCost()
